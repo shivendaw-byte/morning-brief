@@ -1,0 +1,84 @@
+# Sources for the morning brief.
+# tier: "core" feeds are always scanned. "extra" feeds fill in on slow days.
+# track: which section of the brief this feed can supply.
+
+reads:
+  - name: WSJ Markets
+    url: https://feeds.content.dowjones.io/public/rss/RSSMarketsMain
+    track: business
+    tier: core
+  - name: WSJ US Business
+    url: https://feeds.content.dowjones.io/public/rss/WSJcomUSBusiness
+    track: business
+    tier: core
+  - name: WSJ Opinion
+    url: https://feeds.content.dowjones.io/public/rss/RSSOpinion
+    track: business
+    tier: core
+  - name: WSJ World News
+    url: https://feeds.content.dowjones.io/public/rss/RSSWorldNews
+    track: policy
+    tier: core
+  - name: FT Home
+    url: https://www.ft.com/rss/home
+    track: business
+    tier: core
+  - name: Economist Business
+    url: https://www.economist.com/business/rss.xml
+    track: business
+    tier: core
+  - name: Economist Finance & Economics
+    url: https://www.economist.com/finance-and-economics/rss.xml
+    track: policy
+    tier: core
+  - name: McKinsey Insights
+    url: https://www.mckinsey.com/insights/rss
+    track: business
+    tier: core
+  - name: Stratechery
+    url: https://stratechery.com/feed/
+    track: tech
+    tier: core
+  - name: Techmeme
+    url: https://www.techmeme.com/feed.xml
+    track: tech
+    tier: extra
+  - name: Marginal Revolution
+    url: https://marginalrevolution.com/feed
+    track: policy
+    tier: extra
+  - name: Reuters Business (via Google News)
+    url: https://news.google.com/rss/search?q=when:1d+site:reuters.com+business&hl=en-US&gl=US&ceid=US:en
+    track: business
+    tier: core
+  - name: M&A and divestitures (via Google News)
+    url: https://news.google.com/rss/search?q=when:1d+(acquisition+OR+merger+OR+divestiture+OR+spin-off)+strategy&hl=en-US&gl=US&ceid=US:en
+    track: deals
+    tier: core
+  - name: Tariffs and trade policy (via Google News)
+    url: https://news.google.com/rss/search?q=when:1d+(tariffs+OR+trade+policy+OR+export+controls)&hl=en-US&gl=US&ceid=US:en
+    track: policy
+    tier: core
+
+listens:
+  - name: Acquired
+    url: https://feeds.transistor.fm/acquired
+    day: [0, 6]           # Monday, Sunday
+  - name: All-In
+    url: https://allinchamathjason.libsyn.com/rss
+    day: [1]              # Tuesday
+  - name: Huberman Lab
+    url: https://feeds.megaphone.fm/hubermanlab
+    day: [2]              # Wednesday
+  - name: Odd Lots
+    url: https://www.omnycontent.com/d/playlist/e73c998e-6e60-432f-8610-ae210140c5b1/8a94442e-5a74-4fa2-8b8d-ae27003a8d6b/982f5071-765c-403d-969d-ae27003a8d83/podcast.rss
+    day: [3]              # Thursday
+  - name: The Moth
+    url: https://rss.amperwave.net/v2/feed/audacynetwork/the-moth
+    day: [4]              # Friday
+  - name: This American Life
+    url: https://www.thisamericanlife.org/podcast/rss.xml
+    day: [4]              # Friday backup if The Moth has nothing new
+  - name: On Purpose with Jay Shetty
+    url: https://feeds.megaphone.fm/on-purpose
+    day: [5]              # Saturday

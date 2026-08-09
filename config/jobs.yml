@@ -1,0 +1,78 @@
+# Internship / program application tracker.
+#
+# Each target is fetched daily, reduced to visible text, and diffed against
+# yesterday's snapshot. When the text changes, the diff is handed to Claude to
+# decide whether an actual new posting or deadline appeared - far more robust
+# than a brittle per-firm scraper.
+#
+# KNOWN LIMITATION, verified 2026-08-09 by tools/verify_sources.py:
+#   BCG and McKinsey serve their careers sites as JavaScript applications. Plain
+#   HTTP gets an empty shell, not the listings, and McKinsey's edge actively
+#   resets the connection. Page-diffing works well on the static-HTML firms
+#   below; for BCG/McKinsey the news_queries section is the real coverage.
+#   Do not assume this tracker is exhaustive - it is a safety net, not a
+#   replacement for checking the portals during application season.
+
+targets:
+  # --- static HTML, page-diffing works ---
+  - firm: Bain
+    label: Bain - Careers
+    url: https://www.bain.com/careers/
+    priority: tier1
+
+  - firm: Bain
+    label: Bain - Find a role (undergrad)
+    url: https://www.bain.com/careers/find-a-role/
+    priority: tier1
+
+  - firm: BCG
+    label: BCG - US early careers
+    url: https://careers.bcg.com/early-careers
+    priority: tier1
+    note: Partial coverage only - SPA.
+
+  - firm: Cornerstone Research
+    label: Cornerstone Research - Careers
+    url: https://www.cornerstone.com/careers/
+    priority: tier2
+
+  - firm: Analysis Group
+    label: Analysis Group - Careers
+    url: https://www.analysisgroup.com/careers/
+    priority: tier2
+
+  - firm: Bates White
+    label: Bates White - Careers
+    url: https://www.bateswhite.com/careers.html
+    priority: tier2
+
+  - firm: Oliver Wyman
+    label: Oliver Wyman - Careers
+    url: https://www.oliverwyman.com/careers.html
+    priority: tier2
+
+  - firm: Deloitte
+    label: Deloitte - Students
+    url: https://www2.deloitte.com/us/en/careers/students.html
+    priority: tier2
+
+  - firm: LEK
+    label: L.E.K. - Careers
+    url: https://www.lek.com/careers
+    priority: tier2
+
+  # --- SPA / bot-protected: kept because GitHub runners may fare better than a
+  #     home IP, but failures here are expected and are logged, not fatal ---
+  - firm: McKinsey
+    label: McKinsey - Students & recent graduates
+    url: https://www.mckinsey.com/careers/students-and-recent-graduates
+    priority: tier1
+    note: Connection-reset from residential IPs. Best-effort only.
+
+# Primary coverage for the firms whose portals cannot be scraped, plus a general
+# net for deadline announcements. These are reliable - all verified returning.
+news_queries:
+  - https://news.google.com/rss/search?q=(%22First+Forward%22+OR+%22First+Year+Foundations%22+OR+%22Emerging+Scholars%22+OR+%22Achievement+Awards%22)+(Bain+OR+Cornerstone+OR+McKinsey+OR+consulting)&hl=en-US&gl=US&ceid=US:en
+  - https://news.google.com/rss/search?q=when:2d+(BCG+OR+%22Boston+Consulting+Group%22)+(internship+OR+%22applications+open%22+OR+%22application+deadline%22+OR+%22summer+2027%22)&hl=en-US&gl=US&ceid=US:en
+  - https://news.google.com/rss/search?q=when:2d+(McKinsey+OR+Bain)+(internship+OR+%22applications+open%22+OR+%22application+deadline%22+OR+%22summer+2027%22)&hl=en-US&gl=US&ceid=US:en
+  - https://news.google.com/rss/search?q=when:2d+consulting+(%22sophomore+program%22+OR+%22summer+internship+applications%22+OR+%22early+careers+program%22)&hl=en-US&gl=US&ceid=US:en

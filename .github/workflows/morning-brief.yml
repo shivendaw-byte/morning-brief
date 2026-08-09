@@ -1,0 +1,70 @@
+name: Morning Brief
+
+on:
+  schedule:
+    # 10:30 UTC = 6:30am ET during daylight saving (Mar-Nov)
+    - cron: "30 10 * * *"
+    # 11:30 UTC = 6:30am ET during standard time (Nov-Mar)
+    - cron: "30 11 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Build the brief but do not email it"
+        type: boolean
+        default: false
+
+# Both crons fire year-round; the once-per-day guard in main.py means only the
+# first one to land on a given ET date actually sends. GitHub's scheduler is
+# best-effort and can run several minutes late - that is expected.
+
+permissions:
+  contents: write
+
+concurrency:
+  group: morning-brief
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Build and send the brief
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          BRIEF_NETWORK: ${{ secrets.BRIEF_NETWORK }}
+          BRIEF_PROFILE: ${{ secrets.BRIEF_PROFILE }}
+          BRIEF_PROXY: ${{ vars.BRIEF_PROXY }}
+          BRIEF_TO: ${{ vars.BRIEF_TO }}
+          BRIEF_MODEL: ${{ vars.BRIEF_MODEL }}
+        run: |
+          python -m brief.main ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '--dry-run --force' || '' }}
+
+      - name: Persist state
+        if: success()
+        run: |
+          git config user.name  "morning-brief[bot]"
+          git config user.email "morning-brief@users.noreply.github.com"
+          git add state/
+          git diff --staged --quiet || git commit -m "state: $(date -u +%Y-%m-%d)"
+          git push
+
+      - name: Upload dry-run output
+        if: always() && inputs.dry_run
+        uses: actions/upload-artifact@v4
+        with:
+          name: brief-preview
+          path: out/
+          if-no-files-found: ignore

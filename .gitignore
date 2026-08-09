@@ -1,0 +1,10 @@
+out/
+# Everything that identifies the reader or the people they know. Never
+# committed - these reach Actions via the BRIEF_PROFILE and BRIEF_NETWORK
+# secrets, so repo visibility can never leak them. This repo is public.
+config/network.json
+config/profile.md
+__pycache__/
+*.pyc
+.venv/
+.env
