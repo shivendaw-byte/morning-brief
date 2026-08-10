@@ -17,7 +17,7 @@ import zoneinfo
 
 import yaml
 
-from brief import collect, curate, mailer, render
+from brief import collect, curate, mailer, pick, render
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 STATE = ROOT / "state"
@@ -111,8 +111,18 @@ def main() -> int:
     except Exception as exc:
         reason = f"{type(exc).__name__}: {exc}"
         print("Curation failed:", reason, file=sys.stderr)
-        subject = f"Morning Brief — {date_label} — [raw, curation failed]"
-        text_body, html_body = render.render_raw_fallback(bundle, episode, date_label, reason)
+        notes.append("Unedited: ranked automatically, no model available.")
+        # Rank-only brief first. It keeps the 3-reads/1-listen shape and reads
+        # like the real thing minus the judgment; the raw dump is the last resort.
+        try:
+            brief = pick.select(bundle, episode, now_et)
+            subject = f"Morning Brief — {date_label} — {brief.get('subject', '').strip()}".rstrip(" —")
+            text_body = render.render_text(brief, date_label, notes)
+            html_body = render.render_html(brief, date_label, notes)
+        except Exception as pick_exc:
+            print("Rank-only fallback failed:", pick_exc, file=sys.stderr)
+            subject = f"Morning Brief — {date_label} — [raw, curation failed]"
+            text_body, html_body = render.render_raw_fallback(bundle, episode, date_label, reason)
         chosen = set()
 
     if args.dry_run:

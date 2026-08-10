@@ -39,8 +39,10 @@ def render_text(brief: dict, date_label: str, notes: list[str]) -> str:
     for i, read in enumerate(brief.get("reads", []), 1):
         out.append(f"{i}. {read.get('title', '')}")
         out.append(f"   {read.get('source', '')} | ~{read.get('minutes', 5)} min")
-        out.append(f"   {read.get('what', '')}")
-        out.append(f"   -> Use it: {read.get('use_it', '')}")
+        if read.get("what"):
+            out.append(f"   {read['what']}")
+        if read.get("use_it"):
+            out.append(f"   -> Use it: {read['use_it']}")
         out.append(f"   {read.get('url', '')}")
         proxied = _proxy(read.get("url", ""))
         if proxied:
@@ -51,9 +53,12 @@ def render_text(brief: dict, date_label: str, notes: list[str]) -> str:
     if listen:
         out.append("LISTEN")
         out.append("")
-        out.append(f"{listen.get('show', '')} - {listen.get('title', '')}  ({listen.get('runtime', '')})")
-        out.append(f"   {listen.get('what', '')}")
-        out.append(f"   -> Use it: {listen.get('use_it', '')}")
+        runtime = f"  ({listen['runtime']})" if listen.get("runtime") else ""
+        out.append(f"{listen.get('show', '')} - {listen.get('title', '')}{runtime}")
+        if listen.get("what"):
+            out.append(f"   {listen['what']}")
+        if listen.get("use_it"):
+            out.append(f"   -> Use it: {listen['use_it']}")
         out.append(f"   {listen.get('url', '')}")
         out.append("")
 
@@ -110,10 +115,10 @@ def render_html(brief: dict, date_label: str, notes: list[str]) -> str:
         parts.append(
             f'<p style="margin:0 0 6px;"><strong>{i}. {_esc(read.get("title"))}</strong><br>'
             f'<span style="color:#6b6b6b;font-size:13px;">{_esc(read.get("source"))} &middot; ~{_esc(read.get("minutes", 5))} min</span></p>'
-            f'<p style="margin:0 0 8px;">{_esc(read.get("what"))}</p>'
-            f'<p style="margin:0 0 8px;border-left:3px solid #d4d4d4;padding-left:12px;">'
-            f'<strong>Use it:</strong> {_esc(read.get("use_it"))}</p>'
-            f'<p style="margin:0 0 26px;"><a href="{_esc(read.get("url"))}">Read it &rarr;</a>{extra}</p>'
+            + (f'<p style="margin:0 0 8px;">{_esc(read.get("what"))}</p>' if read.get("what") else "")
+            + (f'<p style="margin:0 0 8px;border-left:3px solid #d4d4d4;padding-left:12px;">'
+               f'<strong>Use it:</strong> {_esc(read.get("use_it"))}</p>' if read.get("use_it") else "")
+            + f'<p style="margin:0 0 26px;"><a href="{_esc(read.get("url"))}">Read it &rarr;</a>{extra}</p>'
         )
 
     listen = brief.get("listen") or {}
@@ -122,10 +127,10 @@ def render_html(brief: dict, date_label: str, notes: list[str]) -> str:
         parts.append(
             f'<p style="margin:0 0 6px;"><strong>{_esc(listen.get("show"))} &mdash; {_esc(listen.get("title"))}</strong><br>'
             f'<span style="color:#6b6b6b;font-size:13px;">{_esc(listen.get("runtime"))}</span></p>'
-            f'<p style="margin:0 0 8px;">{_esc(listen.get("what"))}</p>'
-            f'<p style="margin:0 0 8px;border-left:3px solid #d4d4d4;padding-left:12px;">'
-            f'<strong>Use it:</strong> {_esc(listen.get("use_it"))}</p>'
-            f'<p style="margin:0 0 26px;"><a href="{_esc(listen.get("url"))}">Listen &rarr;</a></p>'
+            + (f'<p style="margin:0 0 8px;">{_esc(listen.get("what"))}</p>' if listen.get("what") else "")
+            + (f'<p style="margin:0 0 8px;border-left:3px solid #d4d4d4;padding-left:12px;">'
+               f'<strong>Use it:</strong> {_esc(listen.get("use_it"))}</p>' if listen.get("use_it") else "")
+            + f'<p style="margin:0 0 26px;"><a href="{_esc(listen.get("url"))}">Listen &rarr;</a></p>'
         )
 
     if brief.get("one_line"):
